@@ -146,8 +146,6 @@ offset_bottom = 10.0
 
 [node name="Grapple Controller" type="Node2D" parent="."]
 script = ExtResource("3_i3pqv")
-hook_distance = 175.0
-grapple_force = 1000.0
 
 [node name="Line2D" type="Line2D" parent="Grapple Controller"]
 points = PackedVector2Array(0, 0, 0, 0)
@@ -166,7 +164,7 @@ shape = SubResource("RectangleShape2D_sweqy")
 
 [node name="RayCast2D" type="RayCast2D" parent="Grapple Controller/Hook"]
 position = Vector2(11, 0)
-target_position = Vector2(20, 0)
+target_position = Vector2(75, 0)
 collision_mask = 24
 
 [connection signal="timeout" from="Coyote Time" to="." method="_on_coyote_time_timeout"]

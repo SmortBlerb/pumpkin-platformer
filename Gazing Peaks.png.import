@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://n12o35fi644b"
-path="res://.godot/imported/Grain Plains Tileset.png-620de4f03348ab4f4be5e416bfaa9528.ctex"
+uid="uid://bfdo4yswypjjk"
+path="res://.godot/imported/Gazing Peaks.png-5bb3d451d8b0bc3ffeef15eab79a044b.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Grain Plains Tileset.png"
-dest_files=["res://.godot/imported/Grain Plains Tileset.png-620de4f03348ab4f4be5e416bfaa9528.ctex"]
+source_file="res://Gazing Peaks.png"
+dest_files=["res://.godot/imported/Gazing Peaks.png-5bb3d451d8b0bc3ffeef15eab79a044b.ctex"]
 
 [params]
 
