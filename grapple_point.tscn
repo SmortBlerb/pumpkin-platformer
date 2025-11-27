@@ -1,9 +1,9 @@
 [gd_scene load_steps=3 format=3 uid="uid://bdhwmkvaslppw"]
 
-[ext_resource type="Texture2D" uid="uid://cids35nk6uc74" path="res://icons/Arrow.png" id="1_08247"]
+[ext_resource type="Texture2D" uid="uid://7ha6pwiy1l64" path="res://sprites/proto grapple point.png" id="1_08247"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hdcm2"]
-size = Vector2(76, 70)
+size = Vector2(62, 60)
 
 [node name="Grapple Point" type="Node2D"]
 
@@ -15,5 +15,5 @@ collision_mask = 4
 shape = SubResource("RectangleShape2D_hdcm2")
 
 [node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
-scale = Vector2(4.75, 4.375)
+scale = Vector2(3, 2.875)
 texture = ExtResource("1_08247")

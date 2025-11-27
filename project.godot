@@ -12,9 +12,9 @@ config_version=5
 
 config/name="Pumpkin Platformer"
 run/main_scene="uid://uigghhmc1fwv"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.5", "Forward Plus")
 run/max_fps=60
-config/icon="res://icon.svg"
+config/icon="res://sprites/icon.svg"
 
 [display]
 
@@ -66,7 +66,8 @@ reset={
 2d_physics/layer_2="platforms"
 2d_physics/layer_3="grapple"
 2d_physics/layer_4="spike"
-2d_physics/layer_5="grapple_point"
+2d_physics/layer_5="grapple point"
+2d_physics/layer_6="bounce pad"
 
 [rendering]
 

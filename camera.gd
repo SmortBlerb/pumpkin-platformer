@@ -8,5 +8,5 @@ func _ready():
 	global_position = player.global_position
 
 func _process(_delta):
-	position.x = lerp(position.x, player.position.x, 0.2)
+	position.x = lerp(position.x, player.position.x, 0.15)
 	position.y = lerp(position.y, player.position.y - 100, 0.1)

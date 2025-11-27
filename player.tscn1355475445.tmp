@@ -1,9 +1,9 @@
-[gd_scene load_steps=14 format=3 uid="uid://cgyayr6lnahoc"]
+[gd_scene load_steps=13 format=3 uid="uid://cgyayr6lnahoc"]
 
 [ext_resource type="Script" uid="uid://c6w2edcc0b728" path="res://player.gd" id="1_onrkg"]
-[ext_resource type="Texture2D" uid="uid://cjk5dkdb6gu4u" path="res://sprites/P.M.K.M..png" id="2_onrkg"]
+[ext_resource type="Texture2D" uid="uid://cjk5dkdb6gu4u" path="res://P.M.K.M..png" id="2_onrkg"]
 [ext_resource type="Script" uid="uid://ch3ih1yhlvyll" path="res://grapple_controller.gd" id="3_i3pqv"]
-[ext_resource type="Texture2D" uid="uid://3v6af1mbjun2" path="res://sprites/icon.svg" id="4_hqtel"]
+[ext_resource type="Texture2D" uid="uid://3v6af1mbjun2" path="res://icon.svg" id="4_hqtel"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_onrkg"]
 size = Vector2(36, 49)
@@ -104,9 +104,6 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_sweqy"]
 size = Vector2(22, 22)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_hqtel"]
-size = Vector2(36, 49)
-
 [node name="Player" type="CharacterBody2D"]
 collision_mask = 2
 script = ExtResource("1_onrkg")
@@ -172,19 +169,6 @@ position = Vector2(11, 0)
 target_position = Vector2(20, 0)
 collision_mask = 24
 
-[node name="Grapple Timeout" type="Timer" parent="Grapple Controller"]
-wait_time = 0.25
-
-[node name="Bounce Pad Collider" type="Area2D" parent="."]
-collision_mask = 32
-
-[node name="CollisionShape2D2" type="CollisionShape2D" parent="Bounce Pad Collider"]
-top_level = true
-z_index = 1
-position = Vector2(1, 1.5)
-shape = SubResource("RectangleShape2D_hqtel")
-
 [connection signal="timeout" from="Coyote Time" to="." method="_on_coyote_time_timeout"]
 [connection signal="timeout" from="Jump Buffer" to="." method="_on_jump_buffer_timeout"]
 [connection signal="timeout" from="Idle Delay" to="." method="_on_idle_delay_timeout"]
-[connection signal="timeout" from="Grapple Controller/Grapple Timeout" to="Grapple Controller" method="_on_grapple_timeout_timeout"]

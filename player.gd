@@ -24,15 +24,17 @@ var last_floor
 @onready var fall_gravity : float = (-3500) * -1.0
 
 # Special
-var special : bool = false
-var long_jump_charge_amount = 1.0
+var special : bool = true
+var long_jump_charge_amount : float = 1.0
+var ball_state : bool = false;
 
 # Animation
-@onready var animation_player = $"AnimationPlayer"
-@onready var sprite = $"Sprite2D"
+@onready var animation_player := $"AnimationPlayer"
+@onready var sprite := $"Sprite2D"
 var fall_animation_state : bool = false
 var jump_animation_state : bool = false
 var play_idle_animation : bool = true
+var time : int = 0
 
 # Grapple
 @onready var grappler = $"Grapple Controller"
@@ -40,9 +42,9 @@ var play_idle_animation : bool = true
 
 # Debug/Code States
 enum STATE {
-	idle, walk, jump, long_jump, long_jump_charge, grapple_launch
+	idle, walk, jump, long_jump, long_jump_charge, ball
 }
-@export var state = STATE.idle
+var state = STATE.idle
 
 func _physics_process(delta: float):
 	# Get direction player is facing (may be used later
@@ -55,10 +57,10 @@ func _physics_process(delta: float):
 	velocity.y += get_jump_gravity() * delta
 	
 	# Landing
-	if (is_on_floor() && jumping) || state == STATE.grapple_launch:
+	if (is_on_floor() && jumping) || state == STATE.ball:
 		jumping = false
-	if is_on_floor() && !grappler.connected:
-		special = false
+	if is_on_floor() && state == STATE.ball:
+		special = true
 	
 	# Coyote Time
 	if !is_on_floor() && last_floor && !jumping:
@@ -78,12 +80,32 @@ func _physics_process(delta: float):
 			velocity.y = 0
 		buffer = false
 		
+	# Jump squash and stretch
+	if jumping:
+		if time == 0:
+			sprite.scale.y = 1.10
+			sprite.scale.x = 0.9
+		elif time <= 11:
+			sprite.scale.y -= 0.01
+			sprite.scale.x += 0.01
+		time += 1
+	else:
+		sprite.scale.y = 1
+		sprite.scale.x = 1
+		time = 0
+		
 	# Handle falling
 	if Input.is_action_just_released("up") && jumping && !buffer && velocity.y < 0:
 		velocity.y = 0
 	
+	if !jumping && is_on_floor():
+		state = STATE.walk
+	
 	# Condensed movement into one function
-	movement()
+	if !(state == STATE.ball):
+		movement()
+	else:
+		ball_movement()
 	
 	# Sprite flipping
 	if input < 0:
@@ -92,20 +114,26 @@ func _physics_process(delta: float):
 		sprite.flip_h = false
 	
 	# Top Speed Handling
-	if abs(velocity.x) >= speed && state != STATE.long_jump && state != STATE.grapple_launch:
+	if abs(velocity.x) >= speed && state != STATE.long_jump && state != STATE.ball:
 		velocity.x = clampf(velocity.x, -speed, speed)
 	else:
 		velocity.x = clampf(velocity.x, -grapple_top_speed, grapple_top_speed)
 		
 	# Long Jump
-	if Input.is_action_pressed("down") && is_on_floor() && !special && (state == STATE.walk || state == STATE.long_jump_charge):
+	if Input.is_action_pressed("down") && is_on_floor() && special && (state == STATE.walk || state == STATE.long_jump_charge):
 		long_jump_charge()
-	elif Input.is_action_just_released("down") && is_on_floor() && !special && (state == STATE.walk || state == STATE.long_jump_charge):
+	elif Input.is_action_just_released("down") && is_on_floor() && special && (state == STATE.walk || state == STATE.long_jump_charge):
 		long_jump()
 		long_jump_charge_amount = 1.0
 	
+	# Ball State Check
+	if state == STATE.ball:
+		ball_state = true
+	else:
+		ball_state = false
+
 	# End of frame/proccess functions
-	if is_zero_approx(velocity.x) && !jumping && state != STATE.grapple_launch:
+	if is_zero_approx(velocity.x) && !jumping && state != STATE.ball:
 		state = STATE.idle
 	last_floor = is_on_floor()
 	move_and_slide()
@@ -116,18 +144,31 @@ func movement():
 	# Input Variables
 	input = Input.get_axis("left", "right")
 	var is_inputting = true if (Input.is_action_pressed("left") or Input.is_action_pressed("right")) else false
-	if !jumping && is_on_floor():
-		state = STATE.walk
-	
+
 	# Acceleration + decceleration
-	if is_inputting && abs(velocity.x) <= speed && signf(input) == signf(velocity.x) && state != STATE.grapple_launch:
+	if is_inputting && abs(velocity.x) <= speed && signf(input) == signf(velocity.x) && state != STATE.ball:
 		velocity.x += (input * speed) / acceleration_time
-	elif is_inputting && signf(input) != signf(velocity.x) && state != STATE.grapple_launch:
+	elif is_inputting && signf(input) != signf(velocity.x) && state != STATE.ball:
 		velocity.x += ((input * speed) / acceleration_time) * reactivity_percent
-	elif !is_inputting && !is_zero_approx(velocity.x) && state != STATE.grapple_launch:
+	elif !is_inputting && !is_zero_approx(velocity.x) && state != STATE.ball:
 		velocity.x += (velocity.x * -1) / decceleration_time
-	elif is_inputting && state == STATE.grapple_launch:
-		velocity.x += (input * (speed / 5))
+	elif !is_inputting && state != STATE.ball:
+		velocity.x += (velocity.x * -1) / (decceleration_time * 10)
+
+func ball_movement():
+	if special:
+		if Input.get_action_raw_strength("down") == 1:
+			velocity = Vector2(velocity.x / 10, velocity.y / 10)
+			velocity.y = 1000
+			special = false
+		if Input.get_action_raw_strength("left") == 1:
+			velocity = Vector2(velocity.x / 10, velocity.y / 10)
+			velocity.x = -600
+			special = false
+		if Input.get_action_raw_strength("right") == 1:
+			velocity = Vector2(velocity.x / 10, velocity.y / 10)
+			velocity.x = 600
+			special = false
 
 func jump():
 	velocity.y = jump_velocity
@@ -140,7 +181,6 @@ func long_jump():
 	velocity.x += (jump_velocity * -input * 0.4) * long_jump_charge_amount
 	velocity.y = jump_velocity * 0.6
 	jumping = true
-	special = true
 	state = STATE.long_jump
 
 func long_jump_charge():
@@ -186,8 +226,8 @@ func animate():
 		play_idle_animation = true
 		animation_player.play("Fall")
 
-func grapple_launch():
-	state = STATE.grapple_launch
+func ball():
+	state = STATE.ball
 
 func _on_idle_delay_timeout() -> void:
 	play_idle_animation = true

@@ -16,6 +16,7 @@ var hit_position
 # misc
 var time = 0
 var force = Vector2(0.0, 0.0)
+@onready var timeout = $"Grapple Timeout"
 
 const epsilon_vector = Vector2(0.01, 0.01)
 
@@ -27,6 +28,7 @@ func _process(_delta):
 	
 	if Input.is_action_just_pressed("grapple"):
 		launched = true
+		timeout.start()
 	if Input.is_action_just_released("grapple") && hit_position == null:
 		retract_grapple()
 		
@@ -66,16 +68,16 @@ func handle_grapple():
 	if time == 0:
 		force = (player.position.direction_to(hit_position)).normalized() * grapple_force
 	
-	player.grapple_launch()
+	player.ball()
 	player.velocity = Vector2(0, 0)
 	time += 1
 	update_line()
-	if time >= 12:
-		player.grapple_launch()
-		player.position = lerp(player.position, hit_position, 1/(force.length()/player.position.distance_to(hit_position)))
-	if time >= 18:
+	if time >= 12 && time < 24:
+		player.ball()
+		player.position = lerp(player.position, hit_position, 1.0/(-time + 24))
+	if time >= 24:
 		player.velocity += force
-		player.grapple_launch()
+		player.ball()
 		retract_grapple()
 		time = 0
 	
@@ -87,3 +89,8 @@ func update_line():
 		hook.position = to_local(hit_position)
 	else:
 		line.set_point_position(1, hook.position)
+
+
+func _on_grapple_timeout_timeout() -> void:
+	if !connected:
+		retract_grapple()
