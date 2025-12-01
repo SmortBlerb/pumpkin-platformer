@@ -42,7 +42,7 @@ var time : int = 0
 
 # Debug/Code States
 enum STATE {
-	idle, walk, jump, long_jump, long_jump_charge, ball
+	idle, walk, jump, ball
 }
 var state = STATE.idle
 
@@ -67,7 +67,7 @@ func _physics_process(delta: float):
 		coyote_time()
 	
 	# Handle Jump
-	if Input.is_action_just_pressed("up") && state != STATE.long_jump_charge:
+	if Input.is_action_just_pressed("up"):
 		if is_on_floor() || coyote && !jumping:
 			jump()
 		else:
@@ -114,17 +114,10 @@ func _physics_process(delta: float):
 		sprite.flip_h = false
 	
 	# Top Speed Handling
-	if abs(velocity.x) >= speed && state != STATE.long_jump && state != STATE.ball:
+	if abs(velocity.x) >= speed && state != STATE.ball:
 		velocity.x = clampf(velocity.x, -speed, speed)
 	else:
 		velocity.x = clampf(velocity.x, -grapple_top_speed, grapple_top_speed)
-		
-	# Long Jump
-	if Input.is_action_pressed("down") && is_on_floor() && special && (state == STATE.walk || state == STATE.long_jump_charge):
-		long_jump_charge()
-	elif Input.is_action_just_released("down") && is_on_floor() && special && (state == STATE.walk || state == STATE.long_jump_charge):
-		long_jump()
-		long_jump_charge_amount = 1.0
 	
 	# Ball State Check
 	if state == STATE.ball:
@@ -174,20 +167,6 @@ func jump():
 	velocity.y = jump_velocity
 	jumping = true
 	state = STATE.jump
-
-func long_jump():
-	if is_zero_approx(velocity.x):
-		return
-	velocity.x += (jump_velocity * -input * 0.4) * long_jump_charge_amount
-	velocity.y = jump_velocity * 0.6
-	jumping = true
-	state = STATE.long_jump
-
-func long_jump_charge():
-	long_jump_charge_amount += 0.02
-	long_jump_charge_amount = clampf(long_jump_charge_amount, 0.0, 2)
-	velocity.x /= 2
-	state = STATE.long_jump_charge
 	
 func get_jump_gravity() -> float:
 	if velocity.y < 0.0:
